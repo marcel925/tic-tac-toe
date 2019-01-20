@@ -1,1167 +1,256 @@
+let playerSide;
+let computerSide;
+let gameStatus = "unfinished";
+let winningIndices;
 
-
-var player;
-
-$("#pickX").click(function(){
-
-  $("#pickX, #pickO, #notice").hide();
-  $("#pickSideText").html("You Picked X");
-  player = 1;
-  newGame();
-  
+//pick side and hide pickSideScreen and show gamePlayScreen
+Array.from(document.getElementsByClassName("pickSideButtons")).forEach(function(x){
+    x.onclick = function(){
+            
+      document.getElementById("pickSideScreen").style.display = "none";
+      document.getElementById("gamePlayScreen").style.display = "block";
+      playerSide = this.innerHTML;
+      playerSide == "x" ? computerSide = "o" : computerSide = "x";
+      document.getElementById("pickedMessage").innerHTML = "You picked " + playerSide;
+      
+      // if player chooses o, then computer is x and goes first
+      if (playerSide == "o"){
+        computerMove(playerSide, computerSide);
+      }
+    }
 });
 
+let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-$("#pickO").click(function() {
+//click on buttons. if button is empty -> update html -> update board -> check if winner -> run computerMove -> check if winner
+Array.from(document.getElementsByClassName("ticTacToeButtons")).forEach(function(x){
+  x.onclick = function(){
+    if (gameStatus == "unfinished"){
 
-  $("#pickX, #pickO, #notice").hide();
-  $("#pickSideText").html("You Picked O");
-  player = 2;
-  newGame();
-  aiMove();
-  
+      if (this.innerHTML == "") {
+        this.innerHTML = playerSide;
+        board[parseInt(this.id)] = playerSide;
+        gameStatus = checkWinner(board);
+        
+        if (gameStatus == "unfinished"){
+          computerMove(playerSide, computerSide);
+          gameStatus = checkWinner(board);
+        }
+        
+        if (gameStatus != "unfinished") {
+          playerSide = undefined;
+          document.getElementById("playAgainButton").style.display = "block";
+          if (gameStatus == "draw"){
+            document.getElementById("endGameMessage").innerHTML = "It's a draw!";
+          } else {
+            //this for loop changes colors of winningIndices to olive
+            for (let i = 0; i < winningIndices.length; i++){
+              document.getElementById(winningIndices[i].toString()).style.backgroundColor = "olive";
+            }
+            gameStatus == "x" ? document.getElementById("endGameMessage").innerHTML = "x wins!" : document.getElementById("endGameMessage").innerHTML = "o wins!";
+          }
+
+        }
+      }
+    }
+  }
 });
 
-
-var movesMade = 0;
+//when player clicks playAgainButton - reset all the logic and html
+document.getElementById("playAgainButton").onclick = function(){
+  //resets logic
+  board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+  playerSide = undefined;
+  computerSide = undefined;
+  gameStatus = "unfinished";
+  //reset html & css
+  document.getElementById("pickSideScreen").style.display = "block";
+  document.getElementById("gamePlayScreen").style.display = "none";
+  document.getElementById("playAgainButton").style.display = "none";
+  document.getElementById("pickedMessage").innerHTML = "";
+  document.getElementById("endGameMessage").innerHTML = "";
   
-    
-$("#button1").click(function() {
-  var p1 = document.getElementById("button1").innerHTML;
-  if (p1 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p1 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button1").html("X");
-    $("#button1").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button1").html("O");
-    $("#button1").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-    
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-$("#button2").click(function() {
-  var p2 = document.getElementById("button2").innerHTML;
-  if (p2 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p2 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button2").html("X");
-    $("#button2").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button2").html("O");
-    $("#button2").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-     
-    
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-$("#button3").click(function() {
-  var p3 = document.getElementById("button3").innerHTML;
-  if (p3 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p3 == "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button3").html("X");
-    $("#button3").css("color", "white");
-  }
-    
-  if (player == 2) {
-    $("#button3").html("O");
-    $("#button3").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-    
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-$("#button4").click(function() {
-  var p4 = document.getElementById("button4").innerHTML;
-  if (p4 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p4 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button4").html("X");
-    $("#button4").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button4").html("O");
-    $("#button4").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-         
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-
-$("#button5").click(function() {
-  var p5 = document.getElementById("button5").innerHTML;
-  if (p5 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p5 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button5").html("X");
-    $("#button5").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button5").html("O");
-    $("#button5").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-     
-    
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-$("#button6").click(function() {
-  var p6 = document.getElementById("button6").innerHTML;
-  if (p6 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p6 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button6").html("X");
-    $("#button6").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button6").html("O");
-    $("#button6").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-         
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-$("#button7").click(function() {
-  var p7 = document.getElementById("button7").innerHTML;
-  if (p7 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p7 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button7").html("X");
-    $("#button7").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button7").html("O");
-    $("#button7").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-    
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-
-$("#button8").click(function() {
-  var p8 = document.getElementById("button8").innerHTML;
-  if (p8 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p8 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button8").html("X");
-    $("#button8").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button8").html("O");
-    $("#button8").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-         
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-
-$("#button9").click(function() {
-  var p9 = document.getElementById("button9").innerHTML;
-  if (p9 !== "P") {
-    $("#invalidClick").html("Invalid move: please click empty square!");
-  }
-  
-  if (p9 === "P") {
-    $("#invalidClick").html("");
-    
-  if (player == 1) {
-    $("#button9").html("X");
-    $("#button9").css("color", "white");
-  }
-  
-  if (player == 2) {
-    $("#button9").html("O");
-    $("#button9").css("color", "white");
-  }
-  
-  movesMade++;
-  gameOverTest1();
-   
-//  aiMove();
-//  gameOver();
-         
-  } // end of player 2 if statement
-  
-}); // end of click function
-
-
-
-
-
-
-function newGame() {
-  
-  movesMade = 0;
-  
-  $("#button9, #button8, #button7, #button6, #button5, #button4, #button3, #button2, #button1").css("color", "#333333");
-  
-  $("#button9, #button8, #button7, #button6, #button5, #button4, #button3, #button2, #button1").html("P");
-  
-  $("#button9, #button8, #button7, #button6, #button5, #button4, #button3, #button2, #button1").css("background-color", "#333333");
-
+  Array.from(document.getElementsByClassName("ticTacToeButtons")).forEach(function(x){
+    x.innerHTML = "";
+    x.style.backgroundColor = "#333333";
+  });
 }
 
+//function checkBoard(board) returns "x", "o", "draw" or "unfinished". 
+//also, if there is a winner, then the winningIndices are recorded, and I'm changing their color for improved visuals
+function checkWinner(board) {
 
-function gameOverTest1() {
-  
-  var g1 = document.getElementById("button1").innerHTML;
-  var g2 = document.getElementById("button2").innerHTML;
-  var g3 = document.getElementById("button3").innerHTML;
-  var g4 = document.getElementById("button4").innerHTML;
-  var g5 = document.getElementById("button5").innerHTML;
-  var g6 = document.getElementById("button6").innerHTML;
-  var g7 = document.getElementById("button7").innerHTML;
-  var g8 = document.getElementById("button8").innerHTML;
-  var g9 = document.getElementById("button9").innerHTML;
-  
-  if (g1 == "X" && g2 == "X" && g3 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button2, #button3").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
+  const winX = "xxx";
+  const winO = "ooo";
+  let arr = [];
 
+  //check horizontal lines
+  for (let i = 0; i < board.length; i = i + 3){
+    arr = [];
+    winningIndices = [];
+    for (let j = 0; j < Math.sqrt(board.length); j++){
+      arr.push(board[i + j]);
+      winningIndices.push([i + j]);
+    }
+    if (arr.join("") == winX || arr.join("") == winO){ 
+      return arr[0]; 
+    }
   }
   
-  else if (g4 == "X" && g5 == "X" && g6 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button4, #button5, #button6").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
+  //check vertical lines
+  for (let a = 0; a < Math.sqrt(board.length); a++){a
+    arr = [];
+    winningIndices = [];                                                
+    for (let b = 0; b < board.length; b = b + 3){
+      arr.push(board[a + b]);
+      winningIndices.push([a + b]);
+    }
+    if (arr.join("") == winX || arr.join("") == winO){ 
+      return arr[0]; 
+    }                                                    
   }
   
-  else if (g7 == "X" && g8 == "X" && g9 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win!  </p> <p>Pick a side to start a new game!</p>");
-    $("#button7, #button8, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
+  //check crossed lines
+  let crossOne = [board[0], board[4], board[8]];
+  if (crossOne.join("") == winX || crossOne.join("") == winO) { 
+    winningIndices = [[0], [4], [8]];
+    return crossOne[0]; 
   }
   
-  else if (g1 == "X" && g4 == "X" && g7 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win!  </p> <p>Pick a side to start a new game!</p>");
-    $("#button1, #button4, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
+  let crossTwo = [board[2], board[4], board[6]];
+  if (crossTwo.join("") == winX || crossTwo.join("") == winO) { 
+    winningIndices = [[2], [4], [6]];
+    return crossTwo[0]; 
+  }
+    
+  //no winner so far, so check if unfinished
+  if (board.filter((val) => val == 0).length > 0){
+    winningIndices = [];
+    return "unfinished"; 
   }
   
-  else if (g2 == "X" && g5 == "X" && g8 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win!  </p> <p>Pick a side to start a new game!</p>");
-    $("#button2, #button5, #button8").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g3 == "X" && g6 == "X" && g9 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button6, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g1 == "X" && g5 == "X" && g9 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button5, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g3 == "X" && g5 == "X" && g7 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button5, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  
-  
-  else if (g1 == "O" && g2 == "O" && g3 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button2, #button3").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g4 == "O" && g5 == "O" && g6 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button4, #button5, #button6").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g7 == "O" && g8 == "O" && g9 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button7, #button8, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g1 == "O" && g4 == "O" && g7 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button4, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g2 == "O" && g5 == "O" && g8 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button2, #button5, #button8").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g3 == "O" && g6 == "O" && g9 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button6, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g1 == "O" && g5 == "O" && g9 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button5, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else if (g3 == "O" && g5 == "O" && g7 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button5, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  
-  else if (movesMade === 9) {
-    $("#pickSideText").append("<p>Game Over. It's a draw! </p> <p> Pick a side to start a new game!</p>");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  else {
-    aiMove();
-    gameOverTest2();
-  }
+  //board is finished and no winnner, so it must be a draw
+  winningIndices = [];
+  return "draw";
 }
 
+function computerMove(playerSide, computerSide){
+  
+  let index = bestMove(playerSide, computerSide);
+  
+  document.getElementById(index.toString()).innerHTML = computerSide; 
+  board[index] = computerSide;
+  
+  
+  function bestMove(playerSide, computerSide){
+    
+    //default move is center, if available
+    if (board[4] == 0){
+      return 4;
+    }
+    
+    //if offensive winning move is available, take it!
+    let move = findTwoInARowWithEmptyThird(computerSide);
 
-function gameOverTest2() {
-  
-  var g1 = document.getElementById("button1").innerHTML;
-  var g2 = document.getElementById("button2").innerHTML;
-  var g3 = document.getElementById("button3").innerHTML;
-  var g4 = document.getElementById("button4").innerHTML;
-  var g5 = document.getElementById("button5").innerHTML;
-  var g6 = document.getElementById("button6").innerHTML;
-  var g7 = document.getElementById("button7").innerHTML;
-  var g8 = document.getElementById("button8").innerHTML;
-  var g9 = document.getElementById("button9").innerHTML;
-  
-  if (g1 == "X" && g2 == "X" && g3 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button2, #button3").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
+    //if no offensive move, take defensive move, if one is necesary
+    if (move == "none") {
+      move = findTwoInARowWithEmptyThird(playerSide);
+    }
 
-  }
-  
-  if (g4 == "X" && g5 == "X" && g6 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button4, #button5, #button6").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g7 == "X" && g8 == "X" && g9 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win!  </p> <p>Pick a side to start a new game!</p>");
-    $("#button7, #button8, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g1 == "X" && g4 == "X" && g7 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win!  </p> <p>Pick a side to start a new game!</p>");
-    $("#button1, #button4, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g2 == "X" && g5 == "X" && g8 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win!  </p> <p>Pick a side to start a new game!</p>");
-    $("#button2, #button5, #button8").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g3 == "X" && g6 == "X" && g9 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button6, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g1 == "X" && g5 == "X" && g9 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button5, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g3 == "X" && g5 == "X" && g7 == "X") {
-    $("#pickSideText").append("<p>Game Over. X's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button5, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  
-  
-  if (g1 == "O" && g2 == "O" && g3 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button2, #button3").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g4 == "O" && g5 == "O" && g6 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button4, #button5, #button6").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g7 == "O" && g8 == "O" && g9 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button7, #button8, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g1 == "O" && g4 == "O" && g7 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button4, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g2 == "O" && g5 == "O" && g8 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button2, #button5, #button8").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g3 == "O" && g6 == "O" && g9 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button6, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g1 == "O" && g5 == "O" && g9 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button1, #button5, #button9").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  if (g3 == "O" && g5 == "O" && g7 == "O") {
-    $("#pickSideText").append("<p>Game Over. O's win! </p> <p> Pick a side to start a new game!</p>");
-    $("#button3, #button5, #button7").css("background-color", "yellow");
-    $("#pickX, #pickO, #notice").show();
-  }
-  
-  
-  if (movesMade === 9) {
-    $("#pickSideText").append("<p>Game Over. It's a draw! </p> <p> Pick a side to start a new game!</p>");
-    $("#pickX, #pickO, #notice").show();
+    //defensive moves to advanced attacks / edge cases
+    if (move == "none"){
+      move = defensiveMovesToAdvancedAttacks(playerSide, computerSide);
+    }
+
+    //no major defenisve or offensive moves available, so take the first index available
+    if (move == "none") {
+      for (let y = 0; y < board.length; y++){
+        if (board[y] == 0){
+          return y;
+        }
+      }
+    }
+
+    return move;
   }
  
+  //this function looks for situations where there is a line with 2 of the same symbol with one empty slot. 
+  //These are crucial for attacking and defending
+  function findTwoInARowWithEmptyThird(side){
+    let arr = [];
+    let indices = [];
+    
+    //check horizontal lines
+    for (let i = 0; i < board.length; i = i + 3){
+      arr = [];
+      indices = [];
+      for (let j = 0; j < Math.sqrt(board.length); j++){
+        arr.push(board[i + j]);
+        indices.push([i + j]);
+      }
+      if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
+        return indices[arr.indexOf(0)]; 
+      }
+    }
+    
+    //check vertical lines
+    for (let a = 0; a < Math.sqrt(board.length); a++){
+      arr = [];
+      indices = [];                                                
+      for (let b = 0; b < board.length; b = b + 3){
+        arr.push(board[a + b]);
+        indices.push([a + b]);
+      }
+      if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
+        return indices[arr.indexOf(0)]; 
+      }                                                   
+    }
+    
+    //check crossed lines
+    arr = [board[0], board[4], board[8]];
+    if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
+      indices = [[0], [4], [8]];
+      return indices[arr.indexOf(0)];
+    }
+
+    arr = [board[2], board[4], board[6]];
+    if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
+      indices = [[2], [4], [6]];
+      return indices[arr.indexOf(0)]; 
+    }
+    
+    return "none";    
+  }
+  
+  //this function defends against specific advanced attacks & edge cases
+  function defensiveMovesToAdvancedAttacks(playerSide, computerSide){
+    if (board.join("") == [computerSide, 0, 0, 0, playerSide, 0, 0, 0, playerSide].join("")){  
+        return 2;
+    } else if (
+      board.join("") == [0, playerSide, 0, computerSide, computerSide, playerSide, playerSide, 0, 0].join("") ||
+      board.join("") == [0, computerSide, playerSide, playerSide, computerSide, 0, 0, playerSide, 0].join("") ||
+      board.join("") == [0, 0, 0, 0, computerSide, playerSide, 0, playerSide, 0].join("")) {
+        return 8;       
+    } else if (
+      board.join("") == [playerSide, 0, 0, 0, computerSide, 0, 0, playerSide, 0].join("") || 
+      board.join("") == [0, playerSide, 0, 0, computerSide, 0, playerSide, 0, 0].join("") || 
+      board.join("") == [playerSide, 0, 0, 0, computerSide, 0, 0, 0, playerSide].join("") || 
+      board.join("") == [0, 0, playerSide, 0, computerSide, 0, playerSide, 0, 0].join("")){
+        return 3;
+    } else if (
+      board.join("") == [playerSide, 0, 0, 0, computerSide, playerSide, 0, 0, 0].join("") || 
+      board.join("") == [0, 0, playerSide, playerSide, computerSide, 0, 0, 0, 0].join("")){
+        return 1;
+    } else if (
+      board.join("") == [0, playerSide, 0, 0, computerSide, 0, 0, 0, playerSide].join("") || 
+      board.join("") == [0, 0, playerSide, 0, computerSide, 0, 0, playerSide, 0].join("")){
+        return 5;
+    } else if (
+      board.join("") == [0, 0, playerSide, 0, computerSide, 0, 0, 0, playerSide].join("") || 
+      board.join("") == [0, 0, 0, 0, computerSide, playerSide, playerSide, 0, 0].join("")){
+        return 7;
+    } else {
+        return "none";
+    }
+  }
 }
-
-
- function aiMove() { 
-    
-  var x1 = document.getElementById("button1").innerHTML;
-  var x2 = document.getElementById("button2").innerHTML;
-  var x3 = document.getElementById("button3").innerHTML;
-  var x4 = document.getElementById("button4").innerHTML;
-  var x5 = document.getElementById("button5").innerHTML;
-  var x6 = document.getElementById("button6").innerHTML;
-  var x7 = document.getElementById("button7").innerHTML;
-  var x8 = document.getElementById("button8").innerHTML;
-  var x9 = document.getElementById("button9").innerHTML;
-  
-  movesMade++;
-     
-  if (player === 1) {
-    if ( x5 === "P" ) {
-      $("#button5").html("O");
-      $("#button5").css("color", "white");
-  }
-    
-    //offensive moves shall go below here and above the next note
-    
-    else if ( x5 === "O" && x1 === "O" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x3 === "O" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x7 === "O" && x3 === "P" ) {
-      $("#button3").html("O");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x9 === "O" && x1 === "P" ) {
-      $("#button1").html("O");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x2 === "O" && x8 === "P" ) {
-      $("#button8").html("O");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x4 === "O" && x6 === "P" ) {
-      $("#button6").html("O");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x6 === "O" && x4 === "P" ) {
-      $("#button4").html("O");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x8 === "O" && x2 === "P" ) {
-      $("#button2").html("O");
-      $("#button2").css("color", "white");
-    }
-    
-    // below are offensive moves NOT involving x5 
-    
-    else if ( x1 === "O" && x2 === "O" && x3 === "P" ) {
-      $("#button3").html("O");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x1 === "O" && x3 === "O" && x2 === "P" ) {
-      $("#button2").html("O");
-      $("#button2").css("color", "white");
-    }
-    
-    else if ( x2 === "O" && x3 === "O" && x1 === "P" ) {
-      $("#button1").html("O");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x1 === "O" && x4 === "O" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x1 === "O" && x7 === "O" && x4 === "P" ) {
-      $("#button4").html("O");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x4 === "O" && x7 === "O" && x1 === "P" ) {
-      $("#button1").html("O");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x3 === "O" && x6 === "O" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x3 === "O" && x9 === "O" && x6 === "P" ) {
-      $("#button6").html("O");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x6 === "O" && x9 === "O" && x3 === "P" ) {
-      $("#button3").html("O");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x7 === "O" && x8 === "O" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x7 === "O" && x9 === "O" && x8 === "P" ) {
-      $("#button8").html("O");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x8 === "O" && x9 === "O" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-    
-    
-    
-    //defensive moves involving x5 below
-    
-    else if ( x5 === "X" && x1 === "X" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x3 === "X" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x7 === "X" && x3 === "P" ) {
-      $("#button3").html("O");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x9 === "X" && x1 === "P" ) {
-      $("#button1").html("O");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x2 === "X" && x8 === "P" ) {
-      $("#button8").html("O");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x4 === "X" && x6 === "P" ) {
-      $("#button6").html("O");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x6 === "X" && x4 === "P" ) {
-      $("#button4").html("O");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x8 === "X" && x2 === "P" ) {
-      $("#button2").html("O");
-      $("#button2").css("color", "white");
-    }
-    
-    // below are defensive moves NOT involving x5 
-    
-    else if ( x1 === "X" && x2 === "X" && x3 === "P" ) {
-      $("#button3").html("O");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x1 === "X" && x3 === "X" && x2 === "P" ) {
-      $("#button2").html("O");
-      $("#button2").css("color", "white");
-    }
-    
-    else if ( x2 === "X" && x3 === "X" && x1 === "P" ) {
-      $("#button1").html("O");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x1 === "X" && x4 === "X" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x1 === "X" && x7 === "X" && x4 === "P" ) {
-      $("#button4").html("O");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x4 === "X" && x7 === "X" && x1 === "P" ) {
-      $("#button1").html("O");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x3 === "X" && x6 === "X" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x3 === "X" && x9 === "X" && x6 === "P" ) {
-      $("#button6").html("O");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x6 === "X" && x9 === "X" && x3 === "P" ) {
-      $("#button3").html("O");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x7 === "X" && x8 === "X" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x7 === "X" && x9 === "X" && x8 === "P" ) {
-      $("#button8").html("O");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x8 === "X" && x9 === "X" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-    
-     // below are defenses to fancy moves
-     
-     else if ( x1 === "X" && x8 === "X" && x5 === "O" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-     
-     else if ( x3 === "X" && x8 === "X" && x5 === "O" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-    
-     else if ( x7 === "X" && x6 === "X" && x5 === "O" && x9 === "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-    }
-     
-     else if ( x4 === "X" && x9 === "X" && x5 === "O" && x7 === "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-    }
-    
-    
-    
-    else if ( x1 === "X" && x9 === "X" && x5 === "O" && x2 === "P" ) {
-      $("#button2").html("O");
-      $("#button2").css("color", "white");
-    }
-     
-     else if ( x3 === "X" && x7 === "X" && x5 === "O" && x2 === "P" ) {
-      $("#button2").html("O");
-      $("#button2").css("color", "white");
-    }
-    
-    
-    // below this are back up moves, in this order: (5) 1, 3, 7, 9, 2, 4, 6, 8. 
-    
-    else if ( x1 == "P" ) {
-      $("#button1").html("O");
-      $("#button1").css("color", "white");
-  }
-    
-    else if ( x3 == "P" ) {
-      $("#button3").html("O");
-      $("#button3").css("color", "white");
-  }
-    
-    else if ( x7 == "P" ) {
-      $("#button7").html("O");
-      $("#button7").css("color", "white");
-  }
-    
-    else if ( x9 == "P" ) {
-      $("#button9").html("O");
-      $("#button9").css("color", "white");
-  }
-        
-    else if ( x2 == "P" ) {
-      $("#button2").html("O");
-      $("#button2").css("color", "white");
-  }
-    
-    else if ( x4 == "P" ) {
-      $("#button4").html("O");
-      $("#button4").css("color", "white");
-  }
-    
-    else if ( x6 == "P" ) {
-      $("#button6").html("O");
-      $("#button6").css("color", "white");
-  }
-    
-    else if ( x8 == "P" ) {
-      $("#button8").html("O");
-      $("#button8").css("color", "white");
-  }
-   
-  
-  } //end of if player == 1
-   
-   
-   if (player == 2) {
-   
-     if ( x5 === "P" ) {
-      $("#button5").html("X");
-      $("#button5").css("color", "white");
-  }     
-     
-  // below are the player 2 offensive moves
-     
-     else if ( x5 === "X" && x1 === "X" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x3 === "X" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x7 === "X" && x3 === "P" ) {
-      $("#button3").html("X");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x9 === "X" && x1 === "P" ) {
-      $("#button1").html("X");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x2 === "X" && x8 === "P" ) {
-      $("#button8").html("X");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x4 === "X" && x6 === "P" ) {
-      $("#button6").html("X");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x6 === "X" && x4 === "P" ) {
-      $("#button4").html("X");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x5 === "X" && x8 === "X" && x2 === "P" ) {
-      $("#button2").html("X");
-      $("#button2").css("color", "white");
-    }
-    
-    // below are offensive moves NOT involving x5 
-    
-    else if ( x1 === "X" && x2 === "X" && x3 === "P" ) {
-      $("#button3").html("X");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x1 === "X" && x3 === "X" && x2 === "P" ) {
-      $("#button2").html("X");
-      $("#button2").css("color", "white");
-    }
-    
-    else if ( x2 === "X" && x3 === "X" && x1 === "P" ) {
-      $("#button1").html("X");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x1 === "X" && x4 === "X" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x1 === "X" && x7 === "X" && x4 === "P" ) {
-      $("#button4").html("X");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x4 === "X" && x7 === "X" && x1 === "P" ) {
-      $("#button1").html("X");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x3 === "X" && x6 === "X" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x3 === "X" && x9 === "X" && x6 === "P" ) {
-      $("#button6").html("X");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x6 === "X" && x9 === "X" && x3 === "P" ) {
-      $("#button3").html("X");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x7 === "X" && x8 === "X" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x7 === "X" && x9 === "X" && x8 === "P" ) {
-      $("#button8").html("X");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x8 === "X" && x9 === "X" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-     
-     //below are the player 2 defensive moves
-     
-     else if ( x5 === "O" && x1 === "O" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x3 === "O" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x7 === "O" && x3 === "P" ) {
-      $("#button3").html("X");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x9 === "O" && x1 === "P" ) {
-      $("#button1").html("X");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x2 === "O" && x8 === "P" ) {
-      $("#button8").html("X");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x4 === "O" && x6 === "P" ) {
-      $("#button6").html("X");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x6 === "O" && x4 === "P" ) {
-      $("#button4").html("X");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x5 === "O" && x8 === "O" && x2 === "P" ) {
-      $("#button2").html("X");
-      $("#button2").css("color", "white");
-    }
-    
-    // below are offensive moves NOT involving x5 
-    
-    else if ( x1 === "O" && x2 === "O" && x3 === "P" ) {
-      $("#button3").html("X");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x1 === "O" && x3 === "O" && x2 === "P" ) {
-      $("#button2").html("X");
-      $("#button2").css("color", "white");
-    }
-    
-    else if ( x2 === "O" && x3 === "O" && x1 === "P" ) {
-      $("#button1").html("X");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x1 === "O" && x4 === "O" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-    
-    else if ( x1 === "O" && x7 === "O" && x4 === "P" ) {
-      $("#button4").html("X");
-      $("#button4").css("color", "white");
-    }
-    
-    else if ( x4 === "O" && x7 === "O" && x1 === "P" ) {
-      $("#button1").html("X");
-      $("#button1").css("color", "white");
-    }
-    
-    else if ( x3 === "O" && x6 === "O" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x3 === "O" && x9 === "O" && x6 === "P" ) {
-      $("#button6").html("X");
-      $("#button6").css("color", "white");
-    }
-    
-    else if ( x6 === "O" && x9 === "O" && x3 === "P" ) {
-      $("#button3").html("X");
-      $("#button3").css("color", "white");
-    }
-    
-    else if ( x7 === "O" && x8 === "O" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-    
-    else if ( x7 === "O" && x9 === "O" && x8 === "P" ) {
-      $("#button8").html("X");
-      $("#button8").css("color", "white");
-    }
-    
-    else if ( x8 === "O" && x9 === "O" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-     
-     // below are defenses to fancy starting moves
-     
-     else if ( x1 === "O" && x8 === "O" && x5 === "X" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-     
-     else if ( x3 === "O" && x8 === "O" && x5 === "X" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-     
-     else if ( x7 === "O" && x6 === "O" && x5 === "X" && x9 === "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-    }
-     
-     else if ( x4 === "O" && x9 === "O" && x5 === "X" && x7 === "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-    }
-     
-     else if ( x1 === "O" && x9 === "O" && x5 === "X" && x2 === "P" ) {
-      $("#button2").html("X");
-      $("#button2").css("color", "white");
-    }
-     
-     else if ( x3 === "O" && x7 === "O" && x5 === "X" && x2 === "P" ) {
-      $("#button2").html("X");
-      $("#button2").css("color", "white");
-    }
-     
-  // below this are back up moves, in this order: (5) 1, 3, 7, 9, 2, 4, 6, 8. 
-    
-    else if ( x1 == "P" ) {
-      $("#button1").html("X");
-      $("#button1").css("color", "white");
-  }
-    
-    else if ( x3 == "P" ) {
-      $("#button3").html("X");
-      $("#button3").css("color", "white");
-  }
-    
-    else if ( x7 == "P" ) {
-      $("#button7").html("X");
-      $("#button7").css("color", "white");
-  }
-    
-    else if ( x9 == "P" ) {
-      $("#button9").html("X");
-      $("#button9").css("color", "white");
-  }
-        
-    else if ( x2 == "P" ) {
-      $("#button2").html("X");
-      $("#button2").css("color", "white");
-  }
-    
-    else if ( x4 == "P" ) {
-      $("#button4").html("X");
-      $("#button4").css("color", "white");
-  }
-    
-    else if ( x6 == "P" ) {
-      $("#button6").html("X");
-      $("#button6").css("color", "white");
-  }
-    
-    else if ( x8 == "P" ) {
-      $("#button8").html("X");
-      $("#button8").css("color", "white");
-  }
-  
-   } // end of if player == 2
-} //end of AI move 
-
