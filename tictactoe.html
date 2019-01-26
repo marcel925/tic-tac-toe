@@ -1,18 +1,22 @@
 <html>
   <head>
-    <title>Tic Tac Toe Unbeatable Game</title>
-    <link rel="stylesheet" href="tictactoe.css">
-</head>
-  
+    <title>Tic Tac Toe 2 Player Game</title>
+	<link rel="stylesheet" href="tictactoe.css">
+  </head>
   <body>
     <div id="pickSideScreen">
+      <p id="pickLevelText">Pick computer level</p>
+      <div id="easy" class="pickLevelButtons">Easy</div>
+      <div id="hard" class="pickLevelButtons">Hard</div>
+      <div id="perfect" class="pickLevelButtons">Perfect</div>
       <p id="pickSideText">Pick your side</p>
       <div id="pickXButton" class="pickSideButtons">x</div>
       <div id="pickOButton" class="pickSideButtons">o</div>
       <p id="noteText">Note: x makes first move.</p>
+      <div id="startButton">Start</div>
+      <p id="introMessage"></p>
     </div>
     <p id="pickedMessage"><p>
-    
     <div id="gamePlayScreen">
       <div id="0" class="ticTacToeButtons"></div>
       <div id="1" class="ticTacToeButtons"></div>
@@ -26,7 +30,6 @@
     </div>
     <p id="endGameMessage"></p>
     <div id="playAgainButton">Play again!</div>
-
-    <script src="tictactoe.js"></script>
+	<script src="tictactoe.js"></script>
   </body>
 </html>
