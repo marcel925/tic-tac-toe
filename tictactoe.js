@@ -2,31 +2,53 @@ let playerSide;
 let computerSide;
 let gameStatus = "unfinished";
 let winningIndices;
+let level;
+const winningVariations = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
 
-//pick side and hide pickSideScreen and show gamePlayScreen
+//pick side
 Array.from(document.getElementsByClassName("pickSideButtons")).forEach(function(x){
     x.onclick = function(){
-            
-      document.getElementById("pickSideScreen").style.display = "none";
-      document.getElementById("gamePlayScreen").style.display = "block";
       playerSide = this.innerHTML;
       playerSide == "x" ? computerSide = "o" : computerSide = "x";
-      document.getElementById("pickedMessage").innerHTML = "You picked " + playerSide;
+      Array.from(document.getElementsByClassName("pickSideButtons")).forEach(function(x){
+        x.style.backgroundColor = "#333333";
+      });
+      this.style.backgroundColor = "olive";
+    }
+});
       
-      // if player chooses o, then computer is x and goes first
-      if (playerSide == "o"){
-        computerMove(playerSide, computerSide);
-      }
+//pick level
+Array.from(document.getElementsByClassName("pickLevelButtons")).forEach(function(x){
+    x.onclick = function(){
+      level = this.id;
+      Array.from(document.getElementsByClassName("pickLevelButtons")).forEach(function(x){
+        x.style.backgroundColor = "#333333";
+      });
+      this.style.backgroundColor = "olive";
     }
 });
 
+//hide pickSideScreen and show gamePlayScreen
+document.getElementById("startButton").onclick = function(){
+  if (playerSide && level) {
+    document.getElementById("introMessage").innerHTML = "";     
+    document.getElementById("pickSideScreen").style.display = "none";
+    document.getElementById("gamePlayScreen").style.display = "block";
+    document.getElementById("pickedMessage").innerHTML = "You picked " + playerSide;
+    if (playerSide == "o"){
+        computerMove(playerSide, computerSide);
+    }
+  } else {
+    document.getElementById("introMessage").innerHTML = "Pick your level and side first!";
+  }
+}
+
 let board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-//click on buttons. if button is empty -> update html -> update board -> check if winner -> run computerMove -> check if winner
+//if button is empty -> update html -> update board -> check if winner -> run computerMove -> check if winner
 Array.from(document.getElementsByClassName("ticTacToeButtons")).forEach(function(x){
   x.onclick = function(){
     if (gameStatus == "unfinished"){
-
       if (this.innerHTML == "") {
         this.innerHTML = playerSide;
         board[parseInt(this.id)] = playerSide;
@@ -38,38 +60,31 @@ Array.from(document.getElementsByClassName("ticTacToeButtons")).forEach(function
         }
         
         if (gameStatus != "unfinished") {
-          playerSide = undefined;
           document.getElementById("playAgainButton").style.display = "block";
           if (gameStatus == "draw"){
             document.getElementById("endGameMessage").innerHTML = "It's a draw!";
           } else {
             //this for loop changes colors of winningIndices to olive
-            for (let i = 0; i < winningIndices.length; i++){
+            for (var i = 0; i < winningIndices.length; i++){
               document.getElementById(winningIndices[i].toString()).style.backgroundColor = "olive";
             }
             gameStatus == "x" ? document.getElementById("endGameMessage").innerHTML = "x wins!" : document.getElementById("endGameMessage").innerHTML = "o wins!";
           }
-
         }
       }
     }
   }
 });
 
-//when player clicks playAgainButton - reset all the logic and html
+//when player clicks playAgainButton - reset the logic and html
 document.getElementById("playAgainButton").onclick = function(){
-  //resets logic
   board = [0, 0, 0, 0, 0, 0, 0, 0, 0];
-  playerSide = undefined;
-  computerSide = undefined;
   gameStatus = "unfinished";
-  //reset html & css
   document.getElementById("pickSideScreen").style.display = "block";
   document.getElementById("gamePlayScreen").style.display = "none";
   document.getElementById("playAgainButton").style.display = "none";
   document.getElementById("pickedMessage").innerHTML = "";
   document.getElementById("endGameMessage").innerHTML = "";
-  
   Array.from(document.getElementsByClassName("ticTacToeButtons")).forEach(function(x){
     x.innerHTML = "";
     x.style.backgroundColor = "#333333";
@@ -77,72 +92,88 @@ document.getElementById("playAgainButton").onclick = function(){
 }
 
 //function checkBoard(board) returns "x", "o", "draw" or "unfinished". 
-//also, if there is a winner, then the winningIndices are recorded, and I'm changing their color for improved visuals
 function checkWinner(board) {
 
   const winX = "xxx";
   const winO = "ooo";
-  let arr = [];
-
-  //check horizontal lines
-  for (let i = 0; i < board.length; i = i + 3){
-    arr = [];
-    winningIndices = [];
-    for (let j = 0; j < Math.sqrt(board.length); j++){
-      arr.push(board[i + j]);
-      winningIndices.push([i + j]);
-    }
-    if (arr.join("") == winX || arr.join("") == winO){ 
-      return arr[0]; 
-    }
-  }
   
-  //check vertical lines
-  for (let a = 0; a < Math.sqrt(board.length); a++){a
-    arr = [];
-    winningIndices = [];                                                
-    for (let b = 0; b < board.length; b = b + 3){
-      arr.push(board[a + b]);
-      winningIndices.push([a + b]);
+  for (let i = 0; i < winningVariations.length; i++){
+    let line = [board[winningVariations[i][0]], board[winningVariations[i][1]], board[winningVariations[i][2]]].join("");
+    if (line == winX || line == winO){
+      winningIndices = winningVariations[i];
+      return line[0];
     }
-    if (arr.join("") == winX || arr.join("") == winO){ 
-      return arr[0]; 
-    }                                                    
-  }
-  
-  //check crossed lines
-  let crossOne = [board[0], board[4], board[8]];
-  if (crossOne.join("") == winX || crossOne.join("") == winO) { 
-    winningIndices = [[0], [4], [8]];
-    return crossOne[0]; 
-  }
-  
-  let crossTwo = [board[2], board[4], board[6]];
-  if (crossTwo.join("") == winX || crossTwo.join("") == winO) { 
-    winningIndices = [[2], [4], [6]];
-    return crossTwo[0]; 
   }
     
   //no winner so far, so check if unfinished
   if (board.filter((val) => val == 0).length > 0){
-    winningIndices = [];
     return "unfinished"; 
   }
   
   //board is finished and no winnner, so it must be a draw
-  winningIndices = [];
   return "draw";
 }
 
 function computerMove(playerSide, computerSide){
+  let index;
   
-  let index = bestMove(playerSide, computerSide);
+  if (level == "easy"){
+    index = easyMove();
+  } else if (level == "hard"){
+    index = hardMove(playerSide, computerSide);
+  } else {
+    index = perfectMove(playerSide, computerSide);
+  }
   
   document.getElementById(index.toString()).innerHTML = computerSide; 
   board[index] = computerSide;
   
+  //easyMove() returns a random empty index with no other tic tac toe logic
+  function easyMove(){
+    var randomNumber;
+    
+    function randomMove1to9(){
+      randomNumber = Math.floor(Math.random() * 9);
+      if (board[randomNumber] != 0){
+        randomMove1to9();
+      } 
+    }
+    
+    randomMove1to9();
+    return randomNumber;
+  }  
   
-  function bestMove(playerSide, computerSide){
+  //hard move returns a good move, but can be beaten using advanced tactics
+  function hardMove(playerSide, computerSide){
+    
+    //default move is center, if available
+    if (board[4] == 0){
+      return 4;
+    }
+    
+    //if offensive winning move is available, take it!
+    let move = findTwoInARowWithEmptyThird(computerSide);
+
+    //if no offensive move, take defensive move, if one is necesary
+    if (move == "none") {
+      move = findTwoInARowWithEmptyThird(playerSide);
+    }
+
+    //no major defenisve or offensive moves available, so take the first index available from set moves (can be beaten using advancced tactics)
+    if (move == "none") {
+      var movesArray = [0, 2, 6, 8, 1, 3, 5, 7]
+      for (var m = 0; m < board.length; m++){
+        if (board[m] == 0){
+          return m;
+        }
+      }
+    }
+
+    return move;
+  }
+  
+  //perfectMove() return a move with unbeatable logic
+  function perfectMove(playerSide, computerSide){
     
     //default move is center, if available
     if (board[4] == 0){
@@ -164,7 +195,7 @@ function computerMove(playerSide, computerSide){
 
     //no major defenisve or offensive moves available, so take the first index available
     if (move == "none") {
-      for (let y = 0; y < board.length; y++){
+      for (var y = 0; y < board.length; y++){
         if (board[y] == 0){
           return y;
         }
@@ -177,48 +208,22 @@ function computerMove(playerSide, computerSide){
   //this function looks for situations where there is a line with 2 of the same symbol with one empty slot. 
   //These are crucial for attacking and defending
   function findTwoInARowWithEmptyThird(side){
-    let arr = [];
-    let indices = [];
+    let moveX = "0xx";
+    let moveO = "0oo";
     
-    //check horizontal lines
-    for (let i = 0; i < board.length; i = i + 3){
-      arr = [];
-      indices = [];
-      for (let j = 0; j < Math.sqrt(board.length); j++){
-        arr.push(board[i + j]);
-        indices.push([i + j]);
+    for (let i = 0; i < winningVariations.length; i++){
+      let line = [board[winningVariations[i][0]], board[winningVariations[i][1]], board[winningVariations[i][2]]].sort().join("");
+      if (line == moveX || line == moveO){
+        if (board[winningVariations[i][0]] == 0){
+          return winningVariations[i][0];
+        } else if (board[winningVariations[i][1]] == 0) {
+          return winningVariations[i][1];
+        } else {
+          return winningVariations[i][2];
+        }
       }
-      if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
-        return indices[arr.indexOf(0)]; 
-      }
-    }
-    
-    //check vertical lines
-    for (let a = 0; a < Math.sqrt(board.length); a++){
-      arr = [];
-      indices = [];                                                
-      for (let b = 0; b < board.length; b = b + 3){
-        arr.push(board[a + b]);
-        indices.push([a + b]);
-      }
-      if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
-        return indices[arr.indexOf(0)]; 
-      }                                                   
-    }
-    
-    //check crossed lines
-    arr = [board[0], board[4], board[8]];
-    if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
-      indices = [[0], [4], [8]];
-      return indices[arr.indexOf(0)];
     }
 
-    arr = [board[2], board[4], board[6]];
-    if (arr.filter((val) => val == side).length == 2 && arr.filter((val) => val == 0).length == 1){ 
-      indices = [[2], [4], [6]];
-      return indices[arr.indexOf(0)]; 
-    }
-    
     return "none";    
   }
   
@@ -234,6 +239,7 @@ function computerMove(playerSide, computerSide){
     } else if (
       board.join("") == [playerSide, 0, 0, 0, computerSide, 0, 0, playerSide, 0].join("") || 
       board.join("") == [0, playerSide, 0, 0, computerSide, 0, playerSide, 0, 0].join("") || 
+      board.join("") == [computerSide, playerSide, 0, 0, computerSide, 0, 0, 0, playerSide].join("") || 
       board.join("") == [playerSide, 0, 0, 0, computerSide, 0, 0, 0, playerSide].join("") || 
       board.join("") == [0, 0, playerSide, 0, computerSide, 0, playerSide, 0, 0].join("")){
         return 3;
