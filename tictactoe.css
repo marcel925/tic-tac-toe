@@ -1,7 +1,11 @@
 html {
   font-size: 30px;
-  margin-left: 10%;
+  margin-top: 5%;
 }
+
+body {
+  min-width: 300px;
+  }
 
 #gamePlayScreen {
   height: 270px;
@@ -13,7 +17,7 @@ html {
   background-color: #333333;
   height: 80px;
   width: 80px;
-  margin: 2px 1px;
+  margin: 2px 2px;
   font-size: 60px;
   display: inline-block;
   color: white;
@@ -36,4 +40,9 @@ html {
   height: 40px;
   width: 180px;
   display: none;
+}
+
+body, #gamePlayScreen, #playAgainButton {
+  text-align: center;
+  margin: auto;
 }
